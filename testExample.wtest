@@ -1,9 +1,50 @@
-import example.pepita
+import coliseo.*
+describe "Tests del Coliseo y Gladiadores" {
 
-describe "group of tests for pepita" {
+  // Armas y armaduras 
+  const espada = new ArmaFilo(longitud = 50, filo = 0.8)
+  const maza = new ArmaContundente(peso = 20)
+  const casco = new Casco()
+  const escudo = new Escudo()
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  // Crear gladiadores
+  const mirmillon1 = new Mirmillon(fuerza = 30, arma = espada, armadura = casco)
+  const dimachaerus1 = new Dimachaerus(destreza = 20, fuerza = 10, armas = [maza])
+  const mirmillon2 = new Mirmillon(fuerza = 25, arma = maza, armadura = escudo)
+
+  test "Un mirmillon ataca a otro y le reduce la vida" {
+    const vidaInicial = mirmillon2.vida()
+    mirmillon1.atacar(mirmillon2)
+    
+    // Verificar quese haya reducido la vida 
+    assert.that(mirmillon2.vida() < vidaInicial)
   }
 
+ test "Un dimachaerus crea un grupo correctamente con nombre D- y la suma de poderes" {
+    const grupo = dimachaerus1.crearGrupoCon(mirmillon1)
+    
+    // Verifica que el nombre del grupo incluya "D-"
+    assert.that(grupo.nombre().contains("D-"))
+  }
+
+  test "El coliseo organiza un combate entre grupos y suma las peleas" {
+    const grupoA = mirmillon1.crearGrupoCon(dimachaerus1)
+    const grupoB = new Grupo()
+    grupoB.inicializarNombre("Los retadores")
+    grupoB.agregarGladiador(mirmillon2)
+
+    // El coliseo hace combatir a los grupos
+    coliseo.combatirGrupos(grupoA, grupoB)
+
+    // Chequear que se haya registrado 1 pelea para cada uno
+    assert.equals(1, grupoA.cantidadPeleas())
+    assert.equals(1, grupoB.cantidadPeleas())
+  }
+
+  test "El coliseo puede curar a un gladiador y devuelve su vida a 100" {
+    mirmillon1.recibirDaño(50) // Le baja la vida
+    coliseo.curarGladiador(mirmillon1)
+    
+    assert.equals(100, mirmillon1.vida())
+  }
 }
